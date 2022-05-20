@@ -2,11 +2,11 @@ import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {}
 
-export const counterSlice = createSlice({
+export const appSlice = createSlice({
   name: 'app',
   initialState,
 
   reducers: {},
 })
 
-export default counterSlice.reducer
+export default appSlice.reducer
