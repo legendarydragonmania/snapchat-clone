@@ -15,8 +15,12 @@ import { v4 as uuidv4 } from 'uuid'
 import { storage, db } from '../firebase'
 import { ref, getDownloadURL, uploadString } from 'firebase/storage'
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
+import AppBackground from '../components/AppBackground'
+import { useAuth0 } from '@auth0/auth0-react'
 
 const Preview = () => {
+  const { user, logout } = useAuth0()
+  const { name, picture } = user
   const colRef = collection(db, 'posts')
   const dispatch = useDispatch()
   const { cameraImage } = useSelector((store) => store.camera)
@@ -38,10 +42,9 @@ const Preview = () => {
           console.log(url)
           addDoc(colRef, {
             imageUrl: url,
-            userName: 'Somebody Else',
+            userName: name,
             read: false,
-            profilePic:
-              'https://thumbs.dreamstime.com/b/girl-headphones-sitting-laptop-customer-support-center-via-phone-mail-operator-service-icons-concept-vector-164113938.jpg',
+            profilePic: picture,
             timestamp: serverTimestamp(),
           })
         })
@@ -50,22 +53,24 @@ const Preview = () => {
       .catch((error) => console.log(error))
   }
   return (
-    <Wrapper>
-      <CloseIcon className='preview__close' onClick={closePreview} />
-      <div className='preview__toolbarRight'>
-        <TextFieldsIcon />
-        <NoteIcon />
-        <MusicNoteIcon />
-        <AttachFileIcon />
-        <CropIcon />
-        <TimerIcon />
-      </div>
-      {cameraImage && <img src={cameraImage} alt='your image' />}
-      <div onClick={sendPost} className='preview__footer'>
-        <h2>Send Now</h2>
-        <SendIcon className='preview__sendIcon' fontSize='small' />
-      </div>
-    </Wrapper>
+    <AppBackground>
+      <Wrapper>
+        <CloseIcon className='preview__close' onClick={closePreview} />
+        <div className='preview__toolbarRight'>
+          <TextFieldsIcon />
+          <NoteIcon />
+          <MusicNoteIcon />
+          <AttachFileIcon />
+          <CropIcon />
+          <TimerIcon />
+        </div>
+        {cameraImage && <img src={cameraImage} alt='your image' />}
+        <div onClick={sendPost} className='preview__footer'>
+          <h2>Send Now</h2>
+          <SendIcon className='preview__sendIcon' fontSize='small' />
+        </div>
+      </Wrapper>
+    </AppBackground>
   )
 }
 
@@ -73,6 +78,8 @@ export default Preview
 
 const Wrapper = styled.div`
   position: relative;
+  width: 100%;
+  height: 100%;
 
   .preview__close {
     position: absolute;
@@ -85,7 +92,7 @@ const Wrapper = styled.div`
   .preview__toolbarRight {
     color: white;
     position: absolute;
-    right: 0;
+    right: -50px;
     display: flex;
     flex-direction: column;
     margin: 5px;
@@ -108,8 +115,8 @@ const Wrapper = styled.div`
     cursor: pointer;
     position: absolute;
     bottom: 0;
-    right: -25px;
-    transform: translate(-50%, -50%);
+    right: -95px;
+    transform: translate(-70%, -50%);
 
     h2 {
       font-size: 8px;

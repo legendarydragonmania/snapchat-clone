@@ -3,12 +3,17 @@ import { Avatar } from '@mui/material'
 import styled from 'styled-components'
 import SearchIcon from '@mui/icons-material/Search'
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble'
+import CameraAltRoundedIcon from '@mui/icons-material/CameraAltRounded'
 import { db } from '../firebase'
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
+import { useNavigate } from 'react-router-dom'
 import Chat from '../components/Chat'
+import { useAuth0 } from '@auth0/auth0-react'
 
 const Chats = () => {
+  const { user, logout } = useAuth0()
   const [posts, setPosts] = useState([])
+  const navigate = useNavigate()
   const colRef = collection(db, 'posts')
   const q = query(colRef, orderBy('timestamp', 'desc'))
 
@@ -17,17 +22,33 @@ const Chats = () => {
       setPosts(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })))
     )
   }, [])
-  console.log(posts)
+
+  const exit = () => {
+    navigate('/')
+  }
 
   return (
     <Wrapper>
       <ChatsHeader>
-        <Avatar className='chats__avatar' />
+        <Avatar
+          className='chats__avatar'
+          src={user.picture}
+          onClick={() => logout({ returnTo: window.location.origin })}
+        />
         <div className='chats__search'>
           <SearchIcon />
           <input type='text' placeholder='Friends' />
         </div>
-        <ChatBubbleIcon className='chats__chatIcon' fontSize='small' />
+        {posts.length >= 1 ? (
+          <ChatBubbleIcon className='chats__chatIcon' fontSize='small' />
+        ) : (
+          <CameraAltRoundedIcon
+            className='chats__chatIcon'
+            fontSize='small'
+            onClick={exit}
+            style={{ cursor: 'pointer' }}
+          />
+        )}
       </ChatsHeader>
       <ChatPosts>
         {posts.map(
@@ -52,12 +73,18 @@ export default Chats
 
 const Wrapper = styled.div`
   position: relative;
-  height: 400px;
+  height: 500px;
   width: 250px;
+  background: url('https://www.pngkey.com/png/full/859-8598072_picture-freeuse-library-silhouette-mobile-at-getdrawings-cell.png')
+    no-repeat center;
+  background-size: contain;
+  padding-top: 80px;
+  padding-left: 5px;
+  padding-right: 10px;
 `
 
 const ChatPosts = styled.div`
-  height: 359px;
+  height: 75%;
   background-color: white;
   box-shadow: 1px -7px 7px -6px rgba(0, 0, 0, 0.44);
   margin-top: -9px;
@@ -80,13 +107,13 @@ const ChatsHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding-left: 5px;
-  padding-right: 5px;
   background-color: #059ee0;
-  height: 50px;
+  height: 10%;
 
   .chats__avatar {
     width: 25px !important;
     height: 25px !important;
+    cursor: pointer;
   }
 
   .chats__search {

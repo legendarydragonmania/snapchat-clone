@@ -2,15 +2,34 @@ import React from 'react'
 import styled from 'styled-components'
 import { Avatar } from '@mui/material'
 import StopRoundedIcon from '@mui/icons-material/StopRounded'
-import IconButton from '@mui/material/IconButton'
+import { useDispatch } from 'react-redux'
+import { selectImage } from '../features/app/appSlice'
+import TimeAgo from 'react-timeago'
+import { doc, updateDoc } from 'firebase/firestore'
+import { db } from '../firebase'
+import { useNavigate } from 'react-router-dom'
 
-const Chat = ({ id, userName, profilePic, imageUrl, timestamp, read }) => {
+const Chat = ({ id, userName, profilePic, image, timestamp, read }) => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const docRef = doc(db, 'posts', id)
+  const open = () => {
+    if (!read) {
+      dispatch(selectImage(image))
+      updateDoc(docRef, {
+        read: true,
+      })
+      navigate(`/chats/view/${id}`, { replace: true })
+    }
+  }
   return (
-    <Wrapper>
+    <Wrapper onClick={open}>
       <Avatar src={profilePic} className='chat__avatar' />
       <ChatInfo>
         <h4>{userName}</h4>
-        <p>Tap to view - {timestamp}</p>
+        <p>
+          Tap to view - <TimeAgo date={timestamp} />
+        </p>
       </ChatInfo>
 
       {!read && <StopRoundedIcon className='chat__readIcon' />}
